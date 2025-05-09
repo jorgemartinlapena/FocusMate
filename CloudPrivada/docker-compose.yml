@@ -3,7 +3,7 @@ version: "3.8"
 services:
   backend:
     build: .
-    container_name: rutina_logros_service
+    container_name: FocusMate_logic
     ports:
       - "8000:8000"
     environment:
