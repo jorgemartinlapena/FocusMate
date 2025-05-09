@@ -36,7 +36,7 @@ def get_achievements():
             ]
         
 # Devuelve la información de un logro específico
-def get_achievent_by_id(achievement_id: int):
+def get_achievement_by_id(achievement_id: int):
     with get_db_connection() as conn:
         with conn.cursor() as cursor:
             cursor.execute('SET search_path TO "fmSchema";')

@@ -20,7 +20,7 @@ def obtener_logros():
 
 @app.get("/logros/buscar")
 def obtener_logro(logro_id: int):
-    logro = get_achievent_by_id(logro_id)
+    logro = get_achievement_by_id(logro_id)
     if logro:
         return logro
     return {"error": "Logro no encontrado"}
@@ -29,17 +29,17 @@ def obtener_logro(logro_id: int):
 def obtener_logros_usuario(usuario_id: int):
     return get_user_achievements(usuario_id)
 
-@app.get("/usuario/logros/agregar")
-def agregar_logro_usuario(user_id: int, method_id: int, session_timestamp: str, duration_minutes: int, task_type: str, productivity_level: int):
-    return set_user_session(user_id, method_id, session_timestamp, duration_minutes, task_type, productivity_level)
+@app.post("/usuario/logros/agregar")
+def agregar_logro_usuario(user_id: int, achievement_id: int):
+    return set_user_achievement(user_id, achievement_id)
 
 @app.get("/usuario/sesiones")
 def obtener_sesiones_usuario(usuario_id: int):
     return get_user_sessions(usuario_id)
 
-@app.get("/usuario/sesiones/agregar")
-def agregar_sesion_usuario(user_id: int, achievement_id: int):
-    return set_user_achievement(user_id, achievement_id)
+@app.post("/usuario/sesiones/agregar")
+def agregar_sesion_usuario(user_id: int, method_id: int, session_timestamp: str, duration_minutes: int, task_type: str, productivity_level: int):
+    return set_user_session(user_id, method_id, session_timestamp, duration_minutes, task_type, productivity_level)
 
 @app.get("/comprobar_logros")
 def comprobar_logros(usuario_id: int):
