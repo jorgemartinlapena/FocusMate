@@ -26,23 +26,22 @@ def get_user_sessions(user_id: int):
             ]
 
 # Agrega una nueva sesión de estudio para un usuario
-def set_user_session(user_id: int, method_id: int, session_timestamp: str, duration_minutes: int, task_type: str, productivity_level: int):
+def set_user_session(user_id: int, method_id: int, session_timestamp: str, duration_minutes: int, 
+                     task_type: str, productivity_level: int, average_pulse: int = None, 
+                     average_movement: int = None):
     with get_db_connection() as conn:
         with conn.cursor() as cursor:
             cursor.execute('SET search_path TO "fmSchema";')
-            cursor.execute("""
-                INSERT INTO user_sessions (user_id, method_id, session_timestamp, duration_minutes, task_type, productivity_level)
-                VALUES (%s, %s, %s, %s, %s, %s);
-            """, (user_id, method_id, session_timestamp, duration_minutes, task_type, productivity_level))
-            conn.commit()
-
-# Agrega una nueva sesión de estudio para un usuario con average_movement y average_pulse
-def set_user_session(user_id: int, method_id: int, session_timestamp: str, duration_minutes: int, task_type: str, productivity_level: int, average_pulse: int, average_movement: int):
-    with get_db_connection() as conn:
-        with conn.cursor() as cursor:
-            cursor.execute('SET search_path TO "fmSchema";')
-            cursor.execute("""
-                INSERT INTO user_sessions (user_id, method_id, session_timestamp, duration_minutes, task_type, productivity_level, average_pulse, average_movement)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s);
-            """, (user_id, method_id, session_timestamp, duration_minutes, task_type, productivity_level, average_pulse, average_movement))
+            
+            if average_pulse is None or average_movement is None:
+                cursor.execute("""
+                    INSERT INTO user_sessions (user_id, method_id, session_timestamp, duration_minutes, task_type, productivity_level)
+                    VALUES (%s, %s, %s, %s, %s, %s);
+                """, (user_id, method_id, session_timestamp, duration_minutes, task_type, productivity_level))
+            else:
+                cursor.execute("""
+                    INSERT INTO user_sessions (user_id, method_id, session_timestamp, duration_minutes, task_type, productivity_level, average_pulse, average_movement)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s);
+                """, (user_id, method_id, session_timestamp, duration_minutes, task_type, productivity_level, average_pulse, average_movement))
+            
             conn.commit()
