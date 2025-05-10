@@ -1,15 +1,9 @@
 import os
-from app.dataBase import (
-    get_achievements,
-    get_achievent_by_id,
-    get_methods,
-    get_method_by_id,
-    get_user_sessions,
-    set_user_session,
-    get_user_achievements,
-    set_user_achievement,
-    check_and_update_achievements
-)
+from app.models.achievements import *
+from app.models.methods import *
+from app.models.user_achievements import *
+from app.models.user_sessions import *
+from app.services.functions import *
 
 # Imprimir todos los logros
 def test_get_achievements():
@@ -21,7 +15,7 @@ def test_get_achievements():
 # Imprimir los detalles de un logro específico
 def test_get_achievent_by_id(achievement_id):
     print(f"\nProbando obtener un logro con id {achievement_id}:")
-    logro = get_achievent_by_id(achievement_id)
+    logro = get_achievement_by_id(achievement_id)
     print(logro)
 
 # Imprimir todos los métodos de estudio

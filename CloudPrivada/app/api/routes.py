@@ -41,9 +41,15 @@ def agregar_logro_usuario(user_id: int, achievement_id: int):
 def obtener_sesiones_usuario(usuario_id: int):
     return get_user_sessions(usuario_id)
 
+# metodo para agregar sesiones de usuario sin media_movimiento y average_pulse
 @router.post("/usuario/sesiones/agregar")
 def agregar_sesion_usuario(user_id: int, method_id: int, session_timestamp: str, duration_minutes: int, task_type: str, productivity_level: int):
     return set_user_session(user_id, method_id, session_timestamp, duration_minutes, task_type, productivity_level)
+
+# metodo para agregar sesiones de usuario con media_movimiento y average_pulse
+@router.post("/usuario/sesiones/agregar")
+def agregar_sesion_usuario(user_id: int, method_id: int, session_timestamp: str, duration_minutes: int, task_type: str, productivity_level: int, average_pulse: int, average_movement: int):
+    return set_user_session(user_id, method_id, session_timestamp, duration_minutes, task_type, productivity_level, average_pulse, average_movement)
 
 @router.get("/comprobar_logros")
 def comprobar_logros(usuario_id: int):

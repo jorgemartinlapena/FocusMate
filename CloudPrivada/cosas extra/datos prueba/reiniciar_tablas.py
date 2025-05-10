@@ -67,6 +67,9 @@ CREATE TABLE user_sessions (
     duration_minutes INT NOT NULL,
     task_type VARCHAR(50),
     productivity_level INT CHECK (productivity_level BETWEEN 1 AND 5),
+    average_pulse INT DEFAULT NULL,
+    average_movement INT DEFAULT NULL,
+    concentration_level INT CHECK (concentration_level BETWEEN 0 AND 100),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (method_id) REFERENCES metodos_estudio(id) ON DELETE SET NULL
 );
