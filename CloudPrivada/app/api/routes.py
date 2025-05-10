@@ -3,7 +3,7 @@ from app.models.achievements import get_achievements, get_achievement_by_id
 from app.models.methods import get_methods, get_method_by_id
 from app.models.user_sessions import get_user_sessions, set_user_session
 from app.models.user_achievements import get_user_achievements, set_user_achievement
-from app.services.functions import check_and_update_achievements
+from app.services.functions import check_and_update_achievements, estimate_concentration
 
 router = APIRouter()
 
@@ -54,3 +54,7 @@ def agregar_sesion_usuario(user_id: int, method_id: int, session_timestamp: str,
 @router.get("/comprobar_logros")
 def comprobar_logros(usuario_id: int):
     return check_and_update_achievements(usuario_id)
+
+@router.get("/estimar_concentracion")
+def estimar_concentracion(usuario_id: int):
+    return estimate_concentration(usuario_id)
