@@ -8,7 +8,7 @@ from app.models.achievements import get_achievements, get_achievement_by_id
 from app.models.methods import get_methods, get_method_by_id
 from app.models.user_sessions import get_user_sessions, set_user_session
 from app.models.user_achievements import get_user_achievements, set_user_achievement
-from app.services.functions import check_and_update_achievements
+from app.functions.update_achievements import check_and_update_achievements
 
 def main():
     print("=== Validación manual de operaciones ===")
