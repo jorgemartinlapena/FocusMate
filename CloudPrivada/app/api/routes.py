@@ -1,4 +1,4 @@
-from fastapi import APIRouter # type: ignore
+from fastapi import APIRouter, Body # type: ignore
 from app.models.achievements import get_achievements, get_achievement_by_id
 from app.models.methods import get_methods, get_method_by_id
 from app.models.user_sessions import get_user_sessions, set_user_session
@@ -34,21 +34,25 @@ def obtener_logros_usuario(usuario_id: int):
     return get_user_achievements(usuario_id)
 
 @router.post("/usuario/logros/agregar")
-def agregar_logro_usuario(user_id: int, achievement_id: int):
+def agregar_logro_usuario(data: dict = Body(...)):
+    user_id = data.get("user_id")
+    achievement_id = data.get("achievement_id")
     return set_user_achievement(user_id, achievement_id)
 
 @router.get("/usuario/sesiones")
 def obtener_sesiones_usuario(usuario_id: int):
     return get_user_sessions(usuario_id)
 
-# metodo para agregar sesiones de usuario sin media_movimiento y average_pulse
 @router.post("/usuario/sesiones/agregar")
-def agregar_sesion_usuario(user_id: int, method_id: int, session_timestamp: str, duration_minutes: int, task_type: str, productivity_level: int):
-    return set_user_session(user_id, method_id, session_timestamp, duration_minutes, task_type, productivity_level)
-
-# metodo para agregar sesiones de usuario con media_movimiento y average_pulse
-@router.post("/usuario/sesiones/agregar")
-def agregar_sesion_usuario(user_id: int, method_id: int, session_timestamp: str, duration_minutes: int, task_type: str, productivity_level: int, average_pulse: int, average_movement: int):
+def agregar_sesion_usuario(data: dict = Body(...)):
+    user_id = data.get("user_id")
+    method_id = data.get("method_id")
+    session_timestamp = data.get("session_timestamp")
+    duration_minutes = data.get("duration_minutes")
+    task_type = data.get("task_type")
+    productivity_level = data.get("productivity_level")
+    average_pulse = data.get("average_pulse", None)
+    average_movement = data.get("average_movement", None)
     return set_user_session(user_id, method_id, session_timestamp, duration_minutes, task_type, productivity_level, average_pulse, average_movement)
 
 @router.get("/comprobar_logros")
@@ -56,5 +60,5 @@ def comprobar_logros(usuario_id: int):
     return check_and_update_achievements(usuario_id)
 
 @router.get("/estimar_concentracion")
-def estimar_concentracion(usuario_id: int):
-    return estimate_concentration(usuario_id)
+def estimar_concentracion(average_pulse: int, average_movement: int):
+    return estimate_concentration(average_pulse, average_movement)
