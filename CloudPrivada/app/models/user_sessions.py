@@ -1,4 +1,5 @@
 from app.db.connection import get_db_connection
+from app.services.functions import estimate_concentration
 
 # Devuelve las sesiones de estudio de un usuario especifico
 def get_user_sessions(user_id: int):
@@ -39,9 +40,11 @@ def set_user_session(user_id: int, method_id: int, session_timestamp: str, durat
                     VALUES (%s, %s, %s, %s, %s, %s);
                 """, (user_id, method_id, session_timestamp, duration_minutes, task_type, productivity_level))
             else:
+                concentration_level = estimate_concentration(average_pulse, average_movement)
+
                 cursor.execute("""
-                    INSERT INTO user_sessions (user_id, method_id, session_timestamp, duration_minutes, task_type, productivity_level, average_pulse, average_movement)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s);
-                """, (user_id, method_id, session_timestamp, duration_minutes, task_type, productivity_level, average_pulse, average_movement))
+                    INSERT INTO user_sessions (user_id, method_id, session_timestamp, duration_minutes, task_type, productivity_level, average_pulse, average_movement, concentration_level)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);
+                """, (user_id, method_id, session_timestamp, duration_minutes, task_type, productivity_level, average_pulse, average_movement, concentration_level))
             
             conn.commit()
