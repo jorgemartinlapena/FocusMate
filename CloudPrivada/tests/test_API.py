@@ -41,6 +41,13 @@ def test_agregar_logro_usuario():
     assert response.status_code == 200
     print("test_agregar_logro_usuario passed:", response.json())
 
+    # Verificar si el logro fue agregado
+    response = requests.get(f"{BASE_URL}/usuario/logros", params={"usuario_id": 1})
+    assert response.status_code == 200
+    logros_usuario = response.json()
+    assert any(logro["achievement_id"] == 1 for logro in logros_usuario), "El logro no fue agregado correctamente"
+    print("Logro agregado correctamente:", logros_usuario)
+
 def test_obtener_sesiones_usuario():
     usuario_id = 1
     response = requests.get(f"{BASE_URL}/usuario/sesiones", params={"usuario_id": usuario_id})
@@ -61,6 +68,18 @@ def test_agregar_sesion_usuario():
     response = requests.post(f"{BASE_URL}/usuario/sesiones/agregar", json=payload)
     assert response.status_code == 200
     print("test_agregar_sesion_usuario passed:", response.json())
+
+    # Verificar si la sesión fue agregada
+    response = requests.get(f"{BASE_URL}/usuario/sesiones", params={"usuario_id": 1})
+    assert response.status_code == 200
+    sesiones_usuario = response.json()
+    assert any(
+        sesion["session_timestamp"] == "2023-01-01T10:00:00" and
+        sesion["duration_minutes"] == 30 and
+        sesion["task_type"] == "task"
+        for sesion in sesiones_usuario
+    ), "La sesión no fue agregada correctamente"
+    print("Sesión agregada correctamente:", sesiones_usuario)
 
 def test_comprobar_logros():
     usuario_id = 1
