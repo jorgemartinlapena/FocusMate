@@ -1,5 +1,6 @@
 import random
 import requests
+from requests.exceptions import ConnectionError
 from datetime import datetime
 
 BASE_URL = "http://localhost:8000"
@@ -22,11 +23,14 @@ def enviar_sesion(usuario_id, metodo_id):
         "average_pulse": average_pulse,
         "average_movement": average_movement
     }
-    response = requests.post(f"{BASE_URL}/usuario/sesiones/agregar", json=payload)
-    if response.status_code == 200:
-        print("Sesión enviada correctamente:", response.json())
-    else:
-        print("Error al enviar la sesión:", response.status_code, response.text)
+    try:
+        response = requests.post(f"{BASE_URL}/usuario/sesiones/agregar", json=payload)
+        if response.status_code == 200:
+            print("Sesión enviada correctamente. Datos enviados:", payload)
+        else:
+            print("Error al enviar la sesión:", response.status_code, response.text)
+    except ConnectionError as e:
+        print("Error de conexión al servidor:", e)
 
 if __name__ == "__main__":
     usuario_id = 1  # ID del usuario
