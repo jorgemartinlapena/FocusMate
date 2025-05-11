@@ -3,7 +3,8 @@ from app.models.achievements import get_achievements, get_achievement_by_id
 from app.models.methods import get_methods, get_method_by_id
 from app.models.user_sessions import get_user_sessions, set_user_session
 from app.models.user_achievements import get_user_achievements, set_user_achievement
-from app.services.functions import check_and_update_achievements, estimate_concentration
+from app.functions.estimate_concentration import estimate_concentration
+from app.functions.update_achievements import check_and_update_achievements
 
 router = APIRouter()
 

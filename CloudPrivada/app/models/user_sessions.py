@@ -1,5 +1,5 @@
 from app.db.connection import get_db_connection
-from app.services.functions import estimate_concentration
+from app.functions.estimate_concentration import estimate_concentration
 
 # Devuelve las sesiones de estudio de un usuario especifico
 def get_user_sessions(user_id: int):
