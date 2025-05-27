@@ -5,8 +5,33 @@ from app.models.user_sessions import get_user_sessions, set_user_session
 from app.models.user_achievements import get_user_achievements, set_user_achievement
 from app.functions.estimate_concentration import estimate_concentration
 from app.functions.update_achievements import check_and_update_achievements
+from app.models.users import set_user, check_user_credentials, change_user_password
 
 router = APIRouter()
+
+#     id SERIAL PRIMARY KEY,
+#     username VARCHAR(50) UNIQUE NOT NULL,
+#     email VARCHAR(100) UNIQUE NOT NULL,
+#     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+@router.post("/usuarios/agregar")
+def agregar_usuario(data: dict = Body(...)):
+    username = data.get("username")
+    email = data.get("email")
+    return set_user(username, email)
+
+@router.post("/usuarios/comprobar")
+def comprobar_usuario(data: dict = Body(...)):
+    username = data.get("username")
+    password = data.get("password") 
+    return check_user_credentials(username, password)
+
+@router.post("/usuarios/cambiar_contrasena")
+def cambiar_contrasena(data: dict = Body(...)):
+    user_id = data.get("user_id")
+    old_password = data.get("old_password")
+    new_password = data.get("new_password")
+    return change_user_password(user_id, old_password, new_password)
 
 @router.get("/metodos")
 def obtener_metodos():
