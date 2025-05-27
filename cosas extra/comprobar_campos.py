@@ -8,7 +8,7 @@ DB_USER = "postgres"
 DB_PASSWORD = "focusmate"
 
 # Nombre de la tabla que quieres inspeccionar
-table_name = "user_sessions"  # Cambia por la tabla que desees consultar
+table_name = "users"  # Cambia por la tabla que desees consultar
 
 # Conexión
 conn = psycopg2.connect(
