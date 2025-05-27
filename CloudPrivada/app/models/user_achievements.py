@@ -29,3 +29,4 @@ def set_user_achievement(user_id: int, achievement_id: int):
                 VALUES (%s, %s, NOW());
             """, (user_id, achievement_id))
             conn.commit()
+            return {"message": "Logro desbloqueado exitosamente."}

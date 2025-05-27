@@ -48,3 +48,4 @@ def set_user_session(user_id: int, method_id: int, session_timestamp: str, durat
                 """, (user_id, method_id, session_timestamp, duration_minutes, task_type, productivity_level, average_pulse, average_movement, concentration_level))
             
             conn.commit()
+            return {"message": "Sesión de estudio agregada exitosamente."}
