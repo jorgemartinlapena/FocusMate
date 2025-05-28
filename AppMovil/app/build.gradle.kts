@@ -51,4 +51,5 @@ dependencies {
     implementation("androidx.cardview:cardview:1.0.0")
     implementation ("io.reactivex.rxjava3:rxandroid:3.0.0")
     implementation ("androidx.cardview:cardview:1.0.0")
+    implementation ("com.google.android.material:material:1.11.0")
 }

@@ -40,10 +40,16 @@ public class CountdownTimerActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_countdown_timer);
+        Button backButton = findViewById(R.id.btn_back);
+        backButton.setOnClickListener(v -> {
+            finish(); // Cierra la actividad y vuelve a la anterior
+        });
 
         initViews();
         updateTimerText();
         setupClickListeners();
+
+
     }
 
     private void initViews() {

@@ -1,77 +1,61 @@
 package com.example.focusmate;
 
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import android.content.Intent;
-import com.example.focusmate.Session.SessionManager;
-import com.example.focusmate.Session.SessionResponse;
+import androidx.fragment.app.Fragment;
 
-public class MainActivity extends AppCompatActivity implements SessionManager.SessionCallback{
-    private SessionManager sessionManager;
+import com.example.focusmate.Fragments.AchievementsFragment;
+import com.example.focusmate.Fragments.MethodsFragment;
+import com.example.focusmate.Fragments.SessionsFragment;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
-        sessionManager = new SessionManager(this);
 
+        BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
+        bottomNav.setOnItemSelectedListener(item -> {
+            Fragment selectedFragment = null;
 
-        Button testButton = findViewById(R.id.test_button);
-        testButton.setOnClickListener(v -> testCreateSession());
+            int itemId = item.getItemId();
+            if (itemId == R.id.nav_sessions) {
+                selectedFragment = new SessionsFragment();
+            } else if (itemId == R.id.nav_methods) {
+                selectedFragment = new MethodsFragment();
+            } else if (itemId == R.id.nav_achievements) {
+                selectedFragment = new AchievementsFragment();
+            }
 
-        Button timerButton = findViewById(R.id.btn_timer);
-        timerButton.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, CountdownTimerActivity.class);
-            startActivity(intent);
+            if (selectedFragment != null) {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, selectedFragment)
+                        .commit();
+            }
+
+            return true;
         });
+
+        // Mostrar el fragmento de sesiones por defecto
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, new SessionsFragment())
+                    .commit();
+            bottomNav.setSelectedItemId(R.id.nav_sessions);
+        }
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-
     }
-    public void onTestButtonClick(View view) {
-        testCreateSession();
-    }
-    private void testCreateSession() {
-        sessionManager.createStudySession(
-                1,
-                4,
-                90,
-                "prueba",
-                4
-
-        );
-    }
-
-
-    public void onSessionCreated(SessionResponse response) {
-        Toast.makeText(this, "¡Sesión creada exitosamente!", Toast.LENGTH_SHORT).show();
-
-    }
-
-
-    public void onSessionError(String error) {
-        Toast.makeText(this, "Error: " + error, Toast.LENGTH_LONG).show();
-    }
-
-
-    protected void onDestroy() {
-        super.onDestroy();
-        if (sessionManager != null) {
-            sessionManager.destroy();
-        }
-    }
-
 }

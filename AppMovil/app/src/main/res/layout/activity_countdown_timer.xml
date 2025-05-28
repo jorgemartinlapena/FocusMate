@@ -7,6 +7,14 @@
     android:padding="24dp"
     android:background="#f5f5f5">
 
+    <Button
+        android:id="@+id/btn_back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="← Volver"
+        android:layout_marginBottom="16dp" />
+
+
     <!-- Título -->
     <TextView
         android:layout_width="wrap_content"

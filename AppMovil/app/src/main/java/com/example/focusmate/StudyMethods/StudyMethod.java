@@ -1,13 +1,29 @@
 package com.example.focusmate.StudyMethods;
 
+import com.google.gson.annotations.SerializedName;
+
 public class StudyMethod {
     private int id;
+
+    @SerializedName("nombre")
     private String name;
+
+    @SerializedName("repeticiones")
     private int repetitions;
+
+    @SerializedName("tiempo_estudio")
     private int studyTime;
+
+    @SerializedName("tiempo_descanso")
     private int restTime;
+
+    @SerializedName("tiempo_descanso_final")
     private int finalRestTime;
+
+    @SerializedName("descripcion")
     private String description;
+
+    @SerializedName("tiempo_total_estudio")
     private int totalStudyTime;
 
     public StudyMethod(int id, String name, int repetitions, int studyTime, int restTime,

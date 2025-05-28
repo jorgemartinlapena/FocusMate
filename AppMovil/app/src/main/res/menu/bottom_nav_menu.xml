@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_sessions"
+        android:icon="@drawable/ic_timer"
+        android:title="Sesiones" />
+
+    <item
+        android:id="@+id/nav_methods"
+        android:icon="@drawable/ic_methods"
+        android:title="Métodos" />
+
+    <item
+        android:id="@+id/nav_achievements"
+        android:icon="@drawable/ic_trophy"
+        android:title="Logros" />
+
+</menu>
