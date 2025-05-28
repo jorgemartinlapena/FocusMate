@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="24dp"
+    android:background="#f5f5f5">
+
+    <!-- Título -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cronómetro de Estudio"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="#333333"
+        android:layout_marginBottom="32dp" />
+
+    <!-- Display del cronómetro -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="300dp"
+        android:layout_height="150dp"
+        android:layout_marginBottom="32dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="8dp"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+
+        <TextView
+            android:id="@+id/tv_timer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="50:00"
+            android:textSize="48sp"
+            android:textStyle="bold"
+            android:textColor="#333333"
+            android:gravity="center"
+            android:background="#ffffff"
+            android:fontFamily="monospace" />
+
+    </androidx.cardview.widget.CardView>
+
+    <!-- Configuración de tiempo -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginBottom="24dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Minutos: "
+            android:textSize="16sp"
+            android:textColor="#666666" />
+
+        <EditText
+            android:id="@+id/et_minutes"
+            android:layout_width="80dp"
+            android:layout_height="48dp"
+            android:hint="50"
+            android:inputType="number"
+            android:textAlignment="center"
+            android:background="@drawable/edit_text_background"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp" />
+
+        <Button
+            android:id="@+id/btn_set_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Establecer"
+            android:textSize="14sp"
+            android:backgroundTint="#4CAF50"
+            android:textColor="#ffffff"
+            style="@style/Widget.Material3.Button" />
+
+    </LinearLayout>
+
+    <!-- Botones de control -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginBottom="16dp">
+
+        <Button
+            android:id="@+id/btn_start"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            android:text="INICIAR"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:backgroundTint="#2196F3"
+            android:textColor="#ffffff"
+            android:layout_marginEnd="8dp"
+            style="@style/Widget.Material3.Button" />
+
+        <Button
+            android:id="@+id/btn_pause"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            android:text="PAUSAR"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:backgroundTint="#FF9800"
+            android:textColor="#ffffff"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:enabled="false"
+            style="@style/Widget.Material3.Button" />
+
+        <Button
+            android:id="@+id/btn_reset"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            android:text="RESET"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:backgroundTint="#F44336"
+            android:textColor="#ffffff"
+            android:layout_marginStart="8dp"
+            style="@style/Widget.Material3.Button" />
+
+    </LinearLayout>
+
+    <!-- Información adicional -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="El timer se volverá rojo cuando queden menos de 5 minutos"
+        android:textSize="12sp"
+        android:textColor="#888888"
+        android:textAlignment="center"
+        android:layout_marginTop="16dp" />
+
+</LinearLayout>
