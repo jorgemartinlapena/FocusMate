@@ -1,10 +1,10 @@
 package com.example.focusmate.Session;
 
-public class SessionResponse {
+public class SessionPostResponse {
     private String message;
     private boolean success;
 
-    public SessionResponse() {}
+    public SessionPostResponse() {}
 
     // Getters y setters
     public String getMessage() { return message; }

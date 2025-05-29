@@ -44,7 +44,6 @@ public class MainActivity extends AppCompatActivity {
             return true;
         });
 
-        // Mostrar el fragmento de sesiones por defecto
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, new SessionsFragment())

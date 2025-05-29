@@ -1,16 +1,30 @@
 package com.example.focusmate.Session;
 
-import java.sql.Timestamp;
+import com.google.gson.annotations.SerializedName;
 
 public class Session {
+    @SerializedName("user_id")
     private int user_id;
+
+    @SerializedName("method_id")
     private int method_id;
+
+    @SerializedName("session_timestamp")
     private String session_timestamp;
+
+    @SerializedName("duration_minutes")
     private int duration_minutes;
+
+    @SerializedName("task_type")
     private String task_type;
+
+    @SerializedName("productivity_level")
     private int productivity_level;
+
+    @SerializedName("average_pulse")
     private int average_pulse;
 
+    @SerializedName("average_movement")
     private int average_movement;
 
     public Session(int user_id, int method_id, String session_timestamp, int duration_minutes, String task_type, int productivity_level) {

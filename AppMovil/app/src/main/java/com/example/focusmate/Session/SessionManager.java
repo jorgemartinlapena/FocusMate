@@ -4,15 +4,16 @@ import android.util.Log;
 
 import com.example.focusmate.RetrofitClient;
 
-import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.observers.DisposableObserver;
 import io.reactivex.rxjava3.schedulers.Schedulers;
-
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 
 public class SessionManager {
     private static final String TAG = "SessionManager";
@@ -20,8 +21,9 @@ public class SessionManager {
     private SessionCallback callback;
 
     public interface SessionCallback {
-        void onSessionCreated(SessionResponse response);
+        void onSessionCreated(SessionPostResponse response);
         void onSessionError(String error);
+        void onSessionsLoaded(List<Session> sessions);
     }
 
     public SessionManager(SessionCallback callback) {
@@ -48,8 +50,7 @@ public class SessionManager {
                             public void onNext(String response) {
                                 Log.d(TAG, "Sesión creada exitosamente: " + response);
                                 if (callback != null) {
-                                    // Crear un objeto SessionResponse simple
-                                    SessionResponse sessionResponse = new SessionResponse();
+                                    SessionPostResponse sessionResponse = new SessionPostResponse();
                                     sessionResponse.setMessage(response);
                                     sessionResponse.setSuccess(true);
                                     callback.onSessionCreated(sessionResponse);
@@ -68,6 +69,39 @@ public class SessionManager {
                             @Override
                             public void onComplete() {
                                 Log.d(TAG, "Petición completada");
+                            }
+                        })
+        );
+    }
+
+    // Nuevo método para obtener sesiones del usuario
+    public void getUserSessions(int userId) {
+        disposables.add(
+                RetrofitClient.getApiService()
+                        .getUserSessions(userId)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeWith(new DisposableObserver<List<Session>>() {
+                            @Override
+                            public void onNext(List<Session> sessions) {
+                                Log.d(TAG, "Sesiones obtenidas exitosamente: " + sessions.size() + " sesiones");
+                                if (callback != null) {
+                                    callback.onSessionsLoaded(sessions);
+                                }
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                String errorMsg = "Error al obtener sesiones: " + e.getMessage();
+                                Log.e(TAG, errorMsg, e);
+                                if (callback != null) {
+                                    callback.onSessionError(errorMsg);
+                                }
+                            }
+
+                            @Override
+                            public void onComplete() {
+                                Log.d(TAG, "Petición de sesiones completada");
                             }
                         })
         );
