@@ -20,21 +20,23 @@
         android:orientation="horizontal"
         android:layout_marginBottom="16dp">
 
-        <Button
-            android:id="@+id/test_button"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Test Session"
-            android:layout_marginEnd="8dp" />
 
         <Button
             android:id="@+id/btn_timer"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Cronómetro"
+            android:text="Crear sesion"
             android:layout_marginStart="8dp" />
+
+        <Button
+            android:id="@+id/btn_refresh"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Actualizar"
+            android:layout_marginStart="4dp"
+            android:backgroundTint="@android:color/holo_blue_dark" />
 
     </LinearLayout>
 

@@ -9,9 +9,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 
-import com.example.focusmate.Fragments.AchievementsFragment;
-import com.example.focusmate.Fragments.MethodsFragment;
-import com.example.focusmate.Fragments.SessionsFragment;
+import com.example.focusmate.Fragments.*;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {

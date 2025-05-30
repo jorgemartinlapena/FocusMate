@@ -50,9 +50,10 @@ public class SessionManager {
                             public void onNext(String response) {
                                 Log.d(TAG, "Sesión creada exitosamente: " + response);
                                 if (callback != null) {
-                                    SessionPostResponse sessionResponse = new SessionPostResponse();
-                                    sessionResponse.setMessage(response);
-                                    sessionResponse.setSuccess(true);
+                                    SessionPostResponse sessionResponse = new SessionPostResponse(
+                                            "Sesión creada exitosamente",
+                                            true
+                                    );
                                     callback.onSessionCreated(sessionResponse);
                                 }
                             }
@@ -74,7 +75,7 @@ public class SessionManager {
         );
     }
 
-    // Nuevo método para obtener sesiones del usuario
+
     public void getUserSessions(int userId) {
         disposables.add(
                 RetrofitClient.getApiService()

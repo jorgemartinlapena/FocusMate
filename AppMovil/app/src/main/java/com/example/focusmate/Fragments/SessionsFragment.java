@@ -20,11 +20,14 @@ import com.example.focusmate.R;
 import com.example.focusmate.Session.Session;
 import com.example.focusmate.Session.SessionManager;
 import com.example.focusmate.Session.SessionPostResponse;
+import com.example.focusmate.Session.SessionConfigActivity;
 import com.example.focusmate.Session.SessionAdapter;
 
 import java.util.List;
 
 public class SessionsFragment extends Fragment implements SessionManager.SessionCallback {
+    private static final int SESSION_CONFIG_REQUEST = 1001;
+
     private SessionManager sessionManager;
     private RecyclerView recyclerViewSessions;
     private SessionAdapter sessionsAdapter;
@@ -46,13 +49,16 @@ public class SessionsFragment extends Fragment implements SessionManager.Session
         sessionManager = new SessionManager(this);
         mainHandler = new Handler(Looper.getMainLooper());
 
-        Button testButton = view.findViewById(R.id.test_button);
-        testButton.setOnClickListener(v -> testCreateSession());
+        Button refreshButton = view.findViewById(R.id.btn_refresh);
+        refreshButton.setOnClickListener(v -> {
+            Toast.makeText(getContext(), "Actualizando sesiones...", Toast.LENGTH_SHORT).show();
+            loadUserSessions();
+        });
 
         Button timerButton = view.findViewById(R.id.btn_timer);
         timerButton.setOnClickListener(v -> {
-            Intent intent = new Intent(getActivity(), CountdownTimerActivity.class);
-            startActivity(intent);
+            Intent intent = new Intent(getActivity(), SessionConfigActivity.class);
+            startActivityForResult(intent, SESSION_CONFIG_REQUEST);
         });
 
         recyclerViewSessions = view.findViewById(R.id.rv_sessions);
@@ -68,6 +74,7 @@ public class SessionsFragment extends Fragment implements SessionManager.Session
             Toast.makeText(getContext(),
                     "Sesión del " + session.getSession_timestamp() + " - " + session.getDuration_minutes() + " min",
                     Toast.LENGTH_SHORT).show();
+
         });
     }
 
@@ -76,11 +83,6 @@ public class SessionsFragment extends Fragment implements SessionManager.Session
         int userId = 1;
         sessionManager.getUserSessions(userId);
     }
-
-    private void testCreateSession() {
-        sessionManager.createStudySession(1, 4, 90, "prueba", 4);
-    }
-
     @Override
     public void onSessionCreated(SessionPostResponse response) {
         Toast.makeText(getContext(), "¡Sesión creada exitosamente!", Toast.LENGTH_SHORT).show();
@@ -99,8 +101,33 @@ public class SessionsFragment extends Fragment implements SessionManager.Session
     public void onSessionsLoaded(List<Session> sessions) {
         mainHandler.post(() -> {
             progressBar.setVisibility(View.GONE);
-            sessionsAdapter.setSessions(sessions);
+            if (sessions != null && !sessions.isEmpty()) {
+                sessionsAdapter.setSessions(sessions);
+                Toast.makeText(getContext(),
+                        "Cargadas " + sessions.size() + " sesiones",
+                        Toast.LENGTH_SHORT).show();
+            } else {
+                sessionsAdapter.setSessions(sessions != null ? sessions : new java.util.ArrayList<>());
+                Toast.makeText(getContext(),
+                        "No tienes sesiones registradas aún",
+                        Toast.LENGTH_SHORT).show();
+            }
         });
+    }
+
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == SESSION_CONFIG_REQUEST) {
+            loadUserSessions();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadUserSessions();
     }
 
     @Override
@@ -110,5 +137,4 @@ public class SessionsFragment extends Fragment implements SessionManager.Session
             sessionManager.destroy();
         }
     }
-
 }

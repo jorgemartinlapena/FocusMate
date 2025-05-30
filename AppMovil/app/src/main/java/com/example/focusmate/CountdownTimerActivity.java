@@ -1,260 +1,281 @@
 package com.example.focusmate;
 
-import android.content.Context;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
-import android.net.Uri;
-import android.os.Build;
+import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
-
 import android.os.CountDownTimer;
-import android.os.VibrationEffect;
-import android.os.Vibrator;
-import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
-import java.util.Locale;
+import com.example.focusmate.Session.SessionManager;
+import com.example.focusmate.Session.SessionPostResponse;
 
+public class CountdownTimerActivity extends AppCompatActivity implements SessionManager.SessionCallback {
 
-public class CountdownTimerActivity extends AppCompatActivity {
-
-    private TextView tvTimer;
-    private Button btnStart, btnPause, btnReset, btnSetTime;
-    private EditText etMinutes;
+    private TextView timerText;
+    private TextView statusText;
+    private TextView methodNameText;
+    private Button startButton;
+    private Button pauseButton;
+    private Button stopButton;
+    private Button backButton;
 
     private CountDownTimer countDownTimer;
-    private boolean isTimerRunning;
-    private long timeLeftInMillis = 3000000; // 50 minutos por defecto (50 * 60 * 1000)
-    private long initialTimeInMillis = 3000000;
+    private boolean isRunning = false;
+    private boolean isPaused = false;
+    private long timeLeftInMillis;
+
+    // Datos de la sesión
+    private int methodId;
+    private String methodName;
+    private int studyTime; // en minutos
+    private int restTime; // en minutos
+    private int repetitions;
+    private int finalRestTime; // en minutos
+    private String taskType;
+
+    // Estado actual
+    private int currentCycle = 1;
+    private boolean isStudyPhase = true; // true = estudio, false = descanso
+    private long sessionStartTime;
+    private int totalStudyMinutes = 0;
+
+    private SessionManager sessionManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_countdown_timer);
-        Button backButton = findViewById(R.id.btn_back);
-        backButton.setOnClickListener(v -> {
-            finish(); // Cierra la actividad y vuelve a la anterior
-        });
+        setContentView(R.layout.activity_countdown);
 
         initViews();
-        updateTimerText();
-        setupClickListeners();
-
-
+        getSessionData();
+        setupTimer();
+        sessionManager = new SessionManager(this);
+        sessionStartTime = System.currentTimeMillis();
     }
 
     private void initViews() {
-        tvTimer = findViewById(R.id.tv_timer);
-        btnStart = findViewById(R.id.btn_start);
-        btnPause = findViewById(R.id.btn_pause);
-        btnReset = findViewById(R.id.btn_reset);
-        btnSetTime = findViewById(R.id.btn_set_time);
-        etMinutes = findViewById(R.id.et_minutes);
+        timerText = findViewById(R.id.tv_timer);
+        statusText = findViewById(R.id.tv_status);
+        methodNameText = findViewById(R.id.tv_method_name);
+        startButton = findViewById(R.id.btn_start);
+        pauseButton = findViewById(R.id.btn_pause);
+        stopButton = findViewById(R.id.btn_stop);
+        backButton = findViewById(R.id.btn_back);
 
-        // Configurar texto inicial
-        etMinutes.setText("50");
+        startButton.setOnClickListener(v -> startTimer());
+        pauseButton.setOnClickListener(v -> pauseTimer());
+        stopButton.setOnClickListener(v -> stopTimer());
+        backButton.setOnClickListener(v -> finish());
     }
 
-    private void setupClickListeners() {
-        btnStart.setOnClickListener(v -> startTimer());
-        btnPause.setOnClickListener(v -> pauseTimer());
-        btnReset.setOnClickListener(v -> resetTimer());
-        btnSetTime.setOnClickListener(v -> setCustomTime());
+    private void getSessionData() {
+        Intent intent = getIntent();
+        methodId = intent.getIntExtra("method_id", 1);
+        methodName = intent.getStringExtra("method_name");
+        studyTime = intent.getIntExtra("study_time", 25);
+        restTime = intent.getIntExtra("rest_time", 5);
+        repetitions = intent.getIntExtra("repetitions", 4);
+        finalRestTime = intent.getIntExtra("final_rest_time", 15);
+        taskType = intent.getStringExtra("task_type");
+
+        // Mostrar información del método
+        methodNameText.setText(methodName != null ? methodName : "Método Personalizado");
+        updateStatusText();
+    }
+
+    private void setupTimer() {
+        // Empezar con tiempo de estudio
+        timeLeftInMillis = studyTime * 60 * 1000; // convertir a milisegundos
+        updateTimerDisplay();
     }
 
     private void startTimer() {
-        if (countDownTimer != null) {
-            countDownTimer.cancel();
+        if (!isRunning) {
+            countDownTimer = new CountDownTimer(timeLeftInMillis, 1000) {
+                @Override
+                public void onTick(long millisUntilFinished) {
+                    timeLeftInMillis = millisUntilFinished;
+                    updateTimerDisplay();
+                }
+
+                @Override
+                public void onFinish() {
+                    onPhaseComplete();
+                }
+            }.start();
+
+            isRunning = true;
+            isPaused = false;
+            startButton.setEnabled(false);
+            pauseButton.setEnabled(true);
+            stopButton.setEnabled(true);
         }
-
-        countDownTimer = new CountDownTimer(timeLeftInMillis, 1000) {
-            @Override
-            public void onTick(long millisUntilFinished) {
-                timeLeftInMillis = millisUntilFinished;
-                updateTimerText();
-            }
-
-            @Override
-            public void onFinish() {
-                isTimerRunning = false;
-                timeLeftInMillis = 0;
-                updateTimerText();
-                onTimerFinished();
-                updateButtons();
-            }
-        }.start();
-
-        isTimerRunning = true;
-        updateButtons();
     }
 
     private void pauseTimer() {
+        if (isRunning) {
+            countDownTimer.cancel();
+            isRunning = false;
+            isPaused = true;
+            startButton.setEnabled(true);
+            pauseButton.setEnabled(false);
+        }
+    }
+
+    private void stopTimer() {
         if (countDownTimer != null) {
             countDownTimer.cancel();
         }
-        isTimerRunning = false;
-        updateButtons();
-    }
 
-    private void resetTimer() {
-        if (countDownTimer != null) {
-            countDownTimer.cancel();
-        }
-        timeLeftInMillis = initialTimeInMillis;
-        isTimerRunning = false;
-        updateTimerText();
-        updateButtons();
-    }
-
-    private void setCustomTime() {
-        String input = etMinutes.getText().toString().trim();
-        if (input.isEmpty()) {
-            Toast.makeText(this, "Ingresa los minutos", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        try {
-            int minutes = Integer.parseInt(input);
-            if (minutes < 1) {
-                Toast.makeText(this, "Los minutos deben ser mayor a 0", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            if (minutes > 999) {
-                Toast.makeText(this, "Máximo 999 minutos", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            // Pausar el timer si está corriendo
-            if (isTimerRunning) {
-                pauseTimer();
-            }
-
-            // Establecer nuevo tiempo
-            initialTimeInMillis = minutes * 60 * 1000L;
-            timeLeftInMillis = initialTimeInMillis;
-            updateTimerText();
-            updateButtons();
-
-            Toast.makeText(this, "Tiempo establecido: " + minutes + " minutos", Toast.LENGTH_SHORT).show();
-
-        } catch (NumberFormatException e) {
-            Toast.makeText(this, "Ingresa un número válido", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void updateTimerText() {
-        int hours = (int) (timeLeftInMillis / 1000) / 3600;
-        int minutes = (int) ((timeLeftInMillis / 1000) % 3600) / 60;
-        int seconds = (int) (timeLeftInMillis / 1000) % 60;
-
-        String timeFormatted;
-        if (hours > 0) {
-            timeFormatted = String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, seconds);
-        } else {
-            timeFormatted = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
-        }
-
-        tvTimer.setText(timeFormatted);
-
-        // Cambiar color cuando quedan menos de 5 minutos
-        if (timeLeftInMillis < 300000 && timeLeftInMillis > 0) { // 5 minutos en milisegundos
-            tvTimer.setTextColor(ContextCompat.getColor(this, android.R.color.holo_red_dark));
-        } else {
-            tvTimer.setTextColor(ContextCompat.getColor(this, android.R.color.black));
-        }
-    }
-
-    private void updateButtons() {
-        if (isTimerRunning) {
-            btnStart.setEnabled(false);
-            btnPause.setEnabled(true);
-            btnSetTime.setEnabled(false);
-        } else {
-            btnStart.setEnabled(timeLeftInMillis > 0);
-            btnPause.setEnabled(false);
-            btnSetTime.setEnabled(true);
-        }
-
-        btnReset.setEnabled(timeLeftInMillis < initialTimeInMillis || !isTimerRunning);
-    }
-
-    private void onTimerFinished() {
-        // Reproducir sonido/vibración cuando termine el timer
-        playNotificationSound();
-        showTimerFinishedDialog();
-    }
-
-    private void playNotificationSound() {
-        try {
-            // Reproducir sonido de notificación
-            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-            Ringtone ringtone = RingtoneManager.getRingtone(getApplicationContext(), notification);
-            ringtone.play();
-
-            // Vibrar
-            Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-            if (vibrator != null) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    vibrator.vibrate(VibrationEffect.createOneShot(1000, VibrationEffect.DEFAULT_AMPLITUDE));
-                } else {
-                    vibrator.vibrate(1000);
-                }
-            }
-        } catch (Exception e) {
-            Log.e("Timer", "Error al reproducir sonido", e);
-        }
-    }
-
-    private void showTimerFinishedDialog() {
+        // Mostrar dialog de confirmación
         new AlertDialog.Builder(this)
-                .setTitle("¡Tiempo terminado!")
-                .setMessage("El cronómetro ha llegado a cero.")
-                .setPositiveButton("OK", (dialog, which) -> {
-                    resetTimer();
+                .setTitle("Detener Sesión")
+                .setMessage("¿Estás seguro de que quieres detener la sesión actual?")
+                .setPositiveButton("Sí", (dialog, which) -> {
+                    // Si hay tiempo de estudio completado, crear sesión parcial
+                    if (totalStudyMinutes > 0) {
+                        showProductivityDialog();
+                    } else {
+                        finish();
+                    }
                 })
-                .setIcon(android.R.drawable.ic_dialog_info)
+                .setNegativeButton("No", null)
                 .show();
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (countDownTimer != null) {
-            countDownTimer.cancel();
+    private void onPhaseComplete() {
+        isRunning = false;
+
+        if (isStudyPhase) {
+            // Completó fase de estudio
+            totalStudyMinutes += studyTime;
+            Toast.makeText(this, "¡Tiempo de estudio completado! Hora del descanso", Toast.LENGTH_SHORT).show();
+
+            // Cambiar a fase de descanso
+            isStudyPhase = false;
+
+            // Determinar tiempo de descanso
+            int breakTime;
+            if (currentCycle == repetitions) {
+                // Último ciclo - descanso final
+                breakTime = finalRestTime;
+            } else {
+                // Descanso normal
+                breakTime = restTime;
+            }
+
+            timeLeftInMillis = breakTime * 60 * 1000;
+
+        } else {
+            // Completó fase de descanso
+            Toast.makeText(this, "¡Descanso completado!", Toast.LENGTH_SHORT).show();
+
+            if (currentCycle >= repetitions) {
+                // Sesión completa
+                onSessionComplete();
+                return;
+            } else {
+                // Siguiente ciclo
+                currentCycle++;
+                isStudyPhase = true;
+                timeLeftInMillis = studyTime * 60 * 1000;
+            }
         }
+
+        updateStatusText();
+        updateTimerDisplay();
+
+        // Reiniciar automáticamente (opcional - puedes cambiarlo por confirmación manual)
+        startTimer();
     }
 
-    // Guardar estado cuando se rota la pantalla
+    private void onSessionComplete() {
+        Toast.makeText(this, "¡Sesión completada! ¡Excelente trabajo!", Toast.LENGTH_LONG).show();
+        showProductivityDialog();
+    }
+
+    private void showProductivityDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Evalúa tu Productividad");
+        builder.setMessage("¿Cómo calificarías tu nivel de productividad en esta sesión?");
+
+        // Crear input para el nivel de productividad
+        final EditText input = new EditText(this);
+        input.setHint("Nivel (1-5)");
+        input.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+        builder.setView(input);
+
+        builder.setPositiveButton("Guardar", (dialog, which) -> {
+            String productivityStr = input.getText().toString().trim();
+            if (!productivityStr.isEmpty()) {
+                try {
+                    int productivity = Integer.parseInt(productivityStr);
+                    if (productivity >= 1 && productivity <= 5) {
+                        createSession(productivity);
+                    } else {
+                        Toast.makeText(this, "El nivel debe estar entre 1 y 5", Toast.LENGTH_SHORT).show();
+                        showProductivityDialog(); // Mostrar de nuevo
+                    }
+                } catch (NumberFormatException e) {
+                    Toast.makeText(this, "Por favor ingresa un número válido", Toast.LENGTH_SHORT).show();
+                    showProductivityDialog(); // Mostrar de nuevo
+                }
+            } else {
+                Toast.makeText(this, "Por favor ingresa un nivel de productividad", Toast.LENGTH_SHORT).show();
+                showProductivityDialog(); // Mostrar de nuevo
+            }
+        });
+
+        builder.setNegativeButton("Cancelar", (dialog, which) -> finish());
+        builder.setCancelable(false);
+        builder.show();
+    }
+
+    private void createSession(int productivityLevel) {
+        // Crear sesión con los datos recopilados
+        sessionManager.createStudySession(
+                1, // TODO: usar ID de usuario real
+                methodId,
+                totalStudyMinutes,
+                taskType,
+                productivityLevel
+        );
+    }
+
+    private void updateTimerDisplay() {
+        int minutes = (int) (timeLeftInMillis / 1000) / 60;
+        int seconds = (int) (timeLeftInMillis / 1000) % 60;
+
+        String timeFormatted = String.format("%02d:%02d", minutes, seconds);
+        timerText.setText(timeFormatted);
+    }
+
+    private void updateStatusText() {
+        String phase = isStudyPhase ? "ESTUDIO" : "DESCANSO";
+        String status = String.format("Ciclo %d/%d - %s", currentCycle, repetitions, phase);
+        statusText.setText(status);
+    }
+
+    // Implementar callbacks del SessionManager
     @Override
-    protected void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putLong("timeLeft", timeLeftInMillis);
-        outState.putBoolean("timerRunning", isTimerRunning);
-        outState.putLong("initialTime", initialTimeInMillis);
+    public void onSessionCreated(SessionPostResponse response) {
+        Toast.makeText(this, "¡Sesión guardada exitosamente!", Toast.LENGTH_SHORT).show();
+        finish();
     }
 
     @Override
-    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        timeLeftInMillis = savedInstanceState.getLong("timeLeft");
-        isTimerRunning = savedInstanceState.getBoolean("timerRunning");
-        initialTimeInMillis = savedInstanceState.getLong("initialTime");
+    public void onSessionError(String error) {
+        Toast.makeText(this, "Error al guardar sesión: " + error, Toast.LENGTH_LONG).show();
+        finish();
+    }
 
-        updateTimerText();
-        updateButtons();
-
-        if (isTimerRunning) {
-            startTimer();
-        }
+    @Override
+    public void onSessionsLoaded(java.util.List<com.example.focusmate.Session.Session> sessions) {
+        // No necesario para esta actividad
     }
 }
