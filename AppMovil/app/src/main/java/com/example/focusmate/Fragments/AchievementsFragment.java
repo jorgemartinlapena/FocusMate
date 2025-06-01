@@ -52,7 +52,7 @@ public class AchievementsFragment extends Fragment implements AchievementManager
 
         // Usar los IDs correctos según los recursos compilados
         recyclerViewAchievements = view.findViewById(R.id.rv_achievements);
-        progressBar = view.findViewById(R.id.progress_bar);
+        progressBar = view.findViewById(R.id.progress_bar_achievements);
         statsText = view.findViewById(R.id.tv_achievement_stats);
         refreshButton = view.findViewById(R.id.btn_refresh_achievements);
 

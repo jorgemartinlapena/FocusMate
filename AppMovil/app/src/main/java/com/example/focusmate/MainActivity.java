@@ -29,12 +29,6 @@ public class MainActivity extends AppCompatActivity {
 
         authService = new AuthService(this);
         
-        // Verificar si el usuario está logueado
-        if (!authService.isLoggedIn()) {
-            redirectToLogin();
-            return;
-        }
-
         BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
         bottomNav.setOnItemSelectedListener(item -> {
             Fragment selectedFragment = null;
