@@ -9,7 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -17,110 +17,106 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.focusmate.R;
 import com.example.focusmate.Session.Session;
+import com.example.focusmate.Session.SessionAdapter;
+import com.example.focusmate.Session.SessionConfigActivity;
 import com.example.focusmate.Session.SessionManager;
 import com.example.focusmate.Session.SessionPostResponse;
-import com.example.focusmate.Session.SessionConfigActivity;
-import com.example.focusmate.Session.SessionAdapter;
 
 import java.util.List;
 
 public class SessionsFragment extends Fragment implements SessionManager.SessionCallback {
-    private static final int SESSION_CONFIG_REQUEST = 1001;
 
-    private SessionManager sessionManager;
-    private RecyclerView recyclerViewSessions;
-    private SessionAdapter sessionsAdapter;
+    private RecyclerView recyclerView;
+    private SessionAdapter adapter;
     private ProgressBar progressBar;
+    private TextView textViewEmpty;
+    private Button btnTimer;
+    private Button btnRefresh;
+    private SessionManager sessionManager;
     private Handler mainHandler;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_sessions, container, false);
-
         initViews(view);
-        setupRecyclerView();
-        loadUserSessions();
-
+        setupListeners();
+        loadSessions();
         return view;
     }
 
     private void initViews(View view) {
-        sessionManager = new SessionManager(this);
+        sessionManager = new SessionManager(this, getContext()); // Pasar contexto
         mainHandler = new Handler(Looper.getMainLooper());
 
-        Button refreshButton = view.findViewById(R.id.btn_refresh);
-        refreshButton.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Actualizando sesiones...", Toast.LENGTH_SHORT).show();
-            loadUserSessions();
-        });
+        // Usar los IDs correctos del layout
+        recyclerView = view.findViewById(R.id.rv_sessions);
+        progressBar = view.findViewById(R.id.progress_bar);
+        textViewEmpty = view.findViewById(R.id.text_view_empty);
+        btnTimer = view.findViewById(R.id.btn_timer);
+        btnRefresh = view.findViewById(R.id.btn_refresh);
 
-        Button timerButton = view.findViewById(R.id.btn_timer);
-        timerButton.setOnClickListener(v -> {
+        adapter = new SessionAdapter();
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setAdapter(adapter);
+    }
+
+    private void setupListeners() {
+        btnTimer.setOnClickListener(v -> {
+            // Navegar a SessionConfigActivity para crear nueva sesión
             Intent intent = new Intent(getActivity(), SessionConfigActivity.class);
-            startActivityForResult(intent, SESSION_CONFIG_REQUEST);
+            startActivity(intent);
         });
 
-        recyclerViewSessions = view.findViewById(R.id.rv_sessions);
-        progressBar = view.findViewById(R.id.progress_bar_sessions);
-    }
-
-    private void setupRecyclerView() {
-        sessionsAdapter = new SessionAdapter();
-        recyclerViewSessions.setLayoutManager(new LinearLayoutManager(getContext()));
-        recyclerViewSessions.setAdapter(sessionsAdapter);
-
-        sessionsAdapter.setOnSessionClickListener(session -> {
-            Toast.makeText(getContext(),
-                    "Sesión del " + session.getSession_timestamp() + " - " + session.getDuration_minutes() + " min",
-                    Toast.LENGTH_SHORT).show();
-
+        btnRefresh.setOnClickListener(v -> {
+            loadSessions();
         });
     }
 
-    private void loadUserSessions() {
+    private void loadSessions() {
         progressBar.setVisibility(View.VISIBLE);
-        int userId = 1;
-        sessionManager.getUserSessions(userId);
-    }
-    @Override
-    public void onSessionCreated(SessionPostResponse response) {
-        Toast.makeText(getContext(), "¡Sesión creada exitosamente!", Toast.LENGTH_SHORT).show();
-        loadUserSessions();
-    }
+        textViewEmpty.setVisibility(View.GONE);
+        recyclerView.setVisibility(View.GONE);
 
-    @Override
-    public void onSessionError(String error) {
-        mainHandler.post(() -> {
-            progressBar.setVisibility(View.GONE);
-            Toast.makeText(getContext(), "Error: " + error, Toast.LENGTH_LONG).show();
-        });
+        // Usar el nuevo método sin parámetros
+        sessionManager.getUserSessions();
     }
 
     @Override
     public void onSessionsLoaded(List<Session> sessions) {
         mainHandler.post(() -> {
             progressBar.setVisibility(View.GONE);
-            if (sessions != null && !sessions.isEmpty()) {
-                sessionsAdapter.setSessions(sessions);
+            
+            if (sessions.isEmpty()) {
+                textViewEmpty.setVisibility(View.VISIBLE);
+                recyclerView.setVisibility(View.GONE);
             } else {
-                sessionsAdapter.setSessions(sessions != null ? sessions : new java.util.ArrayList<>());
+                textViewEmpty.setVisibility(View.GONE);
+                recyclerView.setVisibility(View.VISIBLE);
+                adapter.setSessions(sessions);
             }
         });
     }
 
+    @Override
+    public void onSessionError(String error) {
+        mainHandler.post(() -> {
+            progressBar.setVisibility(View.GONE);
+            textViewEmpty.setText("Error al cargar sesiones: " + error);
+            textViewEmpty.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+        });
+    }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == SESSION_CONFIG_REQUEST) {
-            loadUserSessions();
-        }
+    public void onSessionCreated(SessionPostResponse response) {
+        // Este método puede quedar vacío o manejar respuestas de creación si es necesario
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        loadUserSessions();
+        // Refrescar al volver al fragmento (por ejemplo, después de crear una sesión)
+        loadSessions();
     }
 
     @Override

@@ -4,8 +4,8 @@ import android.content.Context;
 import android.util.Log;
 
 import com.example.focusmate.RetrofitClient;
-import com.example.focusmate.auth.AuthService;
-import com.example.focusmate.auth.User;
+import com.example.focusmate.User.AuthService;
+import com.example.focusmate.User.User;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -21,7 +21,7 @@ public class SessionManager {
     private static final String TAG = "SessionManager";
     private CompositeDisposable disposables = new CompositeDisposable();
     private SessionCallback callback;
-    private Context context; // Agregar contexto
+    private Context context;
 
     public interface SessionCallback {
         void onSessionCreated(SessionPostResponse response);
@@ -29,19 +29,27 @@ public class SessionManager {
         void onSessionsLoaded(List<Session> sessions);
     }
 
-    public SessionManager(SessionCallback callback, Context context) { // Modificar constructor
+    public SessionManager(SessionCallback callback, Context context) {
         this.callback = callback;
         this.context = context;
     }
 
+    public SessionManager(SessionCallback callback) {
+        this.callback = callback;
+    }
+
     // Método para obtener el ID del usuario logueado
     private int getCurrentUserId() {
+        if (context == null) {
+            Log.w(TAG, "Context is null, using default user ID");
+            return 1; // Fallback
+        }
+        
         AuthService authService = new AuthService(context);
         User user = authService.getUserData();
         return user != null ? user.getId() : 1; // Fallback a 1 si no hay usuario
     }
 
-    // Modificar métodos para usar el ID del usuario actual
     public void createStudySession(int methodId, int durationMinutes,
                                    String taskType, int productivityLevel) {
         int userId = getCurrentUserId();
@@ -61,13 +69,9 @@ public class SessionManager {
                         .subscribeWith(new DisposableObserver<String>() {
                             @Override
                             public void onNext(String response) {
-                                Log.d(TAG, "Sesión creada exitosamente: " + response);
+                                Log.d(TAG, "Sesión creada exitosamente");
                                 if (callback != null) {
-                                    SessionPostResponse sessionResponse = new SessionPostResponse(
-                                            "Sesión creada exitosamente",
-                                            true
-                                    );
-                                    callback.onSessionCreated(sessionResponse);
+                                    callback.onSessionCreated(new SessionPostResponse("Sesión creada", true));
                                 }
                             }
 
@@ -82,15 +86,15 @@ public class SessionManager {
 
                             @Override
                             public void onComplete() {
-                                Log.d(TAG, "Petición completada");
+                                Log.d(TAG, "Petición de creación de sesión completada");
                             }
                         })
         );
     }
 
-
     public void getUserSessions() {
         int userId = getCurrentUserId();
+        
         disposables.add(
                 RetrofitClient.getApiService()
                         .getUserSessions(userId)
@@ -99,7 +103,7 @@ public class SessionManager {
                         .subscribeWith(new DisposableObserver<List<Session>>() {
                             @Override
                             public void onNext(List<Session> sessions) {
-                                Log.d(TAG, "Sesiones obtenidas exitosamente: " + sessions.size() + " sesiones");
+                                Log.d(TAG, "Sesiones obtenidas: " + sessions.size() + " sesiones");
                                 if (callback != null) {
                                     callback.onSessionsLoaded(sessions);
                                 }
@@ -121,6 +125,7 @@ public class SessionManager {
                         })
         );
     }
+
     public void destroy() {
         if (disposables != null && !disposables.isDisposed()) {
             disposables.dispose();

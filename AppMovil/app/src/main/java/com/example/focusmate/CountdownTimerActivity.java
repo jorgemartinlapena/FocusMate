@@ -54,7 +54,7 @@ public class CountdownTimerActivity extends AppCompatActivity implements Session
         initViews();
         getSessionData();
         setupTimer();
-        sessionManager = new SessionManager(this);
+        sessionManager = new SessionManager(this, this); // Pasar contexto
         sessionStartTime = System.currentTimeMillis();
     }
 

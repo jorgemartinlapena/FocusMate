@@ -47,11 +47,12 @@ public class AchievementsFragment extends Fragment implements AchievementManager
     }
 
     private void initViews(View view) {
-        achievementManager = new AchievementManager(this);
+        achievementManager = new AchievementManager(this, getContext()); // Pasar contexto
         mainHandler = new Handler(Looper.getMainLooper());
 
+        // Usar los IDs correctos según los recursos compilados
         recyclerViewAchievements = view.findViewById(R.id.rv_achievements);
-        progressBar = view.findViewById(R.id.progress_bar_achievements);
+        progressBar = view.findViewById(R.id.progress_bar);
         statsText = view.findViewById(R.id.tv_achievement_stats);
         refreshButton = view.findViewById(R.id.btn_refresh_achievements);
 
@@ -83,15 +84,10 @@ public class AchievementsFragment extends Fragment implements AchievementManager
     }
 
     @Override
-    public void onAllAchievementsLoaded(List<Achievement> achievements) {
-        mainHandler.post(() -> {
-            this.allAchievements = achievements;
-            achievementsAdapter.setAllAchievements(achievements);
-
-
-            int userId = 1;
-            achievementManager.getUserAchievements(userId);
-        });
+    public void onAchievementsLoaded(List<Achievement> achievements) {
+        allAchievements = achievements;
+        // Ahora cargar logros del usuario (sin pasar userId)
+        achievementManager.getUserAchievements(); // Sin parámetros
     }
 
     @Override

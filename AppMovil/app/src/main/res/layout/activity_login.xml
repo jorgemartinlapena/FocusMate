@@ -5,7 +5,7 @@
     android:orientation="vertical"
     android:padding="24dp"
     android:gravity="center"
-    android:background="@color/white">
+    android:background="@android:color/white">
 
     <!-- Logo/Título -->
     <TextView
@@ -14,7 +14,7 @@
         android:text="FocusMate"
         android:textSize="32sp"
         android:textStyle="bold"
-        android:textColor="@color/primary"
+        android:textColor="@android:color/holo_blue_dark"
         android:layout_marginBottom="48dp" />
 
     <!-- Campo Usuario -->
@@ -29,9 +29,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Usuario"
-            android:inputType="text"
-            android:drawableStart="@drawable/ic_person"
-            android:drawablePadding="12dp" />
+            android:inputType="text" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -47,9 +45,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Contraseña"
-            android:inputType="textPassword"
-            android:drawableStart="@drawable/ic_lock"
-            android:drawablePadding="12dp" />
+            android:inputType="textPassword" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -59,10 +55,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="@android:color/holo_red_dark"
-        android:background="@drawable/error_background"
         android:padding="12dp"
         android:layout_marginBottom="16dp"
-        android:visibility="gone" />
+        android:visibility="gone"
+        android:background="@android:color/transparent" />
 
     <!-- Botón Login -->
     <Button

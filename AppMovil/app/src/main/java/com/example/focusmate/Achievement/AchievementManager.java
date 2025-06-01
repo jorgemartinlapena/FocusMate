@@ -1,8 +1,11 @@
 package com.example.focusmate.Achievement;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.example.focusmate.RetrofitClient;
+import com.example.focusmate.User.AuthService;
+import com.example.focusmate.User.User;
 
 import java.util.List;
 
@@ -15,15 +18,33 @@ public class AchievementManager {
     private static final String TAG = "AchievementManager";
     private CompositeDisposable disposables = new CompositeDisposable();
     private AchievementCallback callback;
+    private Context context;
 
     public interface AchievementCallback {
-        void onAllAchievementsLoaded(List<Achievement> achievements);
+        void onAchievementsLoaded(List<Achievement> achievements);
         void onUserAchievementsLoaded(List<Achievement> achievements);
         void onError(String error);
     }
 
     public AchievementManager(AchievementCallback callback) {
         this.callback = callback;
+    }
+
+    public AchievementManager(AchievementCallback callback, Context context) {
+        this.callback = callback;
+        this.context = context;
+    }
+
+    // Método para obtener el ID del usuario logueado
+    private int getCurrentUserId() {
+        if (context == null) {
+            Log.w(TAG, "Context is null, using default user ID");
+            return 1; // Fallback
+        }
+        
+        AuthService authService = new AuthService(context);
+        User user = authService.getUserData();
+        return user != null ? user.getId() : 1;
     }
 
     public void getAllAchievements() {
@@ -35,15 +56,15 @@ public class AchievementManager {
                         .subscribeWith(new DisposableObserver<List<Achievement>>() {
                             @Override
                             public void onNext(List<Achievement> achievements) {
-                                Log.d(TAG, "Todos los logros obtenidos: " + achievements.size() + " logros");
+                                Log.d(TAG, "Logros obtenidos: " + achievements.size() + " logros");
                                 if (callback != null) {
-                                    callback.onAllAchievementsLoaded(achievements);
+                                    callback.onAchievementsLoaded(achievements);
                                 }
                             }
 
                             @Override
                             public void onError(Throwable e) {
-                                String errorMsg = "Error al obtener todos los logros: " + e.getMessage();
+                                String errorMsg = "Error al obtener logros: " + e.getMessage();
                                 Log.e(TAG, errorMsg, e);
                                 if (callback != null) {
                                     callback.onError(errorMsg);
@@ -52,13 +73,18 @@ public class AchievementManager {
 
                             @Override
                             public void onComplete() {
-                                Log.d(TAG, "Petición de todos los logros completada");
+                                Log.d(TAG, "Petición de logros completada");
                             }
                         })
         );
     }
 
     // Obtener logros del usuario específico
+    public void getUserAchievements() {
+        int userId = getCurrentUserId();
+        getUserAchievements(userId);
+    }
+
     public void getUserAchievements(int userId) {
         disposables.add(
                 RetrofitClient.getApiService()

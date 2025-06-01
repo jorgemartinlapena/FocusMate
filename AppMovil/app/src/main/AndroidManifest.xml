@@ -18,8 +18,7 @@
         <!-- SplashActivity como launcher -->
         <activity
             android:name=".User.SplashActivity"
-            android:exported="true"
-            android:theme="@style/Theme.FocusMate.Splash">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -29,8 +28,7 @@
         <!-- LoginActivity -->
         <activity
             android:name=".User.LoginActivity"
-            android:exported="false"
-            android:theme="@style/Theme.FocusMate.NoActionBar" />
+            android:exported="false" />
         
         <!-- MainActivity -->
         <activity
