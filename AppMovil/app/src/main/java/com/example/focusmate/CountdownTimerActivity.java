@@ -237,9 +237,8 @@ public class CountdownTimerActivity extends AppCompatActivity implements Session
     }
 
     private void createSession(int productivityLevel) {
-        // Crear sesión con los datos recopilados
+        // Crear sesión sin pasar userId, SessionManager lo obtiene automáticamente
         sessionManager.createStudySession(
-                1, // TODO: usar ID de usuario real
                 methodId,
                 totalStudyMinutes,
                 taskType,

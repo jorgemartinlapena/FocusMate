@@ -1,8 +1,11 @@
 package com.example.focusmate.Session;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.example.focusmate.RetrofitClient;
+import com.example.focusmate.auth.AuthService;
+import com.example.focusmate.auth.User;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -18,6 +21,7 @@ public class SessionManager {
     private static final String TAG = "SessionManager";
     private CompositeDisposable disposables = new CompositeDisposable();
     private SessionCallback callback;
+    private Context context; // Agregar contexto
 
     public interface SessionCallback {
         void onSessionCreated(SessionPostResponse response);
@@ -25,12 +29,22 @@ public class SessionManager {
         void onSessionsLoaded(List<Session> sessions);
     }
 
-    public SessionManager(SessionCallback callback) {
+    public SessionManager(SessionCallback callback, Context context) { // Modificar constructor
         this.callback = callback;
+        this.context = context;
     }
 
-    public void createStudySession(int userId, int methodId, int durationMinutes,
+    // Método para obtener el ID del usuario logueado
+    private int getCurrentUserId() {
+        AuthService authService = new AuthService(context);
+        User user = authService.getUserData();
+        return user != null ? user.getId() : 1; // Fallback a 1 si no hay usuario
+    }
+
+    // Modificar métodos para usar el ID del usuario actual
+    public void createStudySession(int methodId, int durationMinutes,
                                    String taskType, int productivityLevel) {
+        int userId = getCurrentUserId();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         String timestamp = sdf.format(new Date());
 
@@ -75,7 +89,8 @@ public class SessionManager {
     }
 
 
-    public void getUserSessions(int userId) {
+    public void getUserSessions() {
+        int userId = getCurrentUserId();
         disposables.add(
                 RetrofitClient.getApiService()
                         .getUserSessions(userId)
