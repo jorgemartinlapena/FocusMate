@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.focusmate.R;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -58,6 +59,7 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.SessionV
 
     class SessionViewHolder extends RecyclerView.ViewHolder {
         private TextView dateText;
+        private TextView timeText;
         private TextView durationText;
         private TextView taskTypeText;
         private TextView productivityText;
@@ -66,6 +68,7 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.SessionV
         public SessionViewHolder(@NonNull View itemView) {
             super(itemView);
             dateText = itemView.findViewById(R.id.tv_session_date);
+            timeText = itemView.findViewById(R.id.tv_session_time);
             durationText = itemView.findViewById(R.id.tv_session_duration);
             taskTypeText = itemView.findViewById(R.id.tv_task_type);
             productivityText = itemView.findViewById(R.id.tv_productivity_level);
@@ -82,25 +85,54 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.SessionV
         }
 
         public void bind(Session session) {
-            String formattedDate = formatDate(session.getSession_timestamp());
-            dateText.setText(formattedDate);
+            // Formatear fecha y hora por separado
+            String[] dateTime = formatDateTime(session.getSession_timestamp());
+            dateText.setText(dateTime[0]); // Fecha
+            timeText.setText(dateTime[1]); // Hora
 
-
+            // Duración
             durationText.setText(session.getDuration_minutes() + " min");
+
+            // Tipo de tarea
             taskTypeText.setText("Tipo: " + session.getTask_type());
+
+            // Nivel de productividad
             productivityText.setText(session.getProductivity_level() + "/5");
+
+            // ID del método (podrías mejorarlo obteniendo el nombre del método)
             methodText.setText("Método " + session.getMethod_id());
         }
 
-        private String formatDate(String timestamp) {
+        private String[] formatDateTime(String timestamp) {
             try {
-                SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+                // Manejar tanto formato con T como sin T
+                SimpleDateFormat inputFormat;
+                if (timestamp.contains("T")) {
+                    inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+                } else {
+                    inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+                }
+
                 Date date = inputFormat.parse(timestamp);
 
-                SimpleDateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
-                return outputFormat.format(date);
+                SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                String formattedDate = dateFormat.format(date);
+
+                SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+                String formattedTime = timeFormat.format(date);
+
+                return new String[]{formattedDate, formattedTime};
+
             } catch (ParseException e) {
-                return timestamp;
+                if (timestamp.contains("T")) {
+                    String[] parts = timestamp.split("T");
+                    if (parts.length == 2) {
+                        String datePart = parts[0];
+                        String timePart = parts[1].substring(0, Math.min(5, parts[1].length())); // Solo HH:mm
+                        return new String[]{datePart, timePart};
+                    }
+                }
+                return new String[]{timestamp, ""};
             }
         }
     }

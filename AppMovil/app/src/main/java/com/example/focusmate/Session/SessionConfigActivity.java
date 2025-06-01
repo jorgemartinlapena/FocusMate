@@ -134,6 +134,7 @@ public class SessionConfigActivity extends AppCompatActivity implements StudyMet
         mainHandler.post(() -> {
             progressBar.setVisibility(View.GONE);
             methodsAdapter.setMethods(methods);
+            checkForPreselectedMethod();
         });
     }
 
@@ -150,6 +151,24 @@ public class SessionConfigActivity extends AppCompatActivity implements StudyMet
         super.onDestroy();
         if (methodManager != null) {
             methodManager.destroy();
+        }
+    }
+
+    private void checkForPreselectedMethod() {
+        Intent intent = getIntent();
+        if (intent.hasExtra("preselected_method_id")) {
+            int methodId = intent.getIntExtra("preselected_method_id", -1);
+            String methodName = intent.getStringExtra("preselected_method_name");
+            int studyTime = intent.getIntExtra("preselected_study_time", 25);
+            int restTime = intent.getIntExtra("preselected_rest_time", 5);
+            int repetitions = intent.getIntExtra("preselected_repetitions", 4);
+            int finalRest = intent.getIntExtra("preselected_final_rest", 15);
+            String description = intent.getStringExtra("preselected_description");
+            int totalTime = studyTime * repetitions;
+
+            selectedMethod = new StudyMethod(methodId, methodName, repetitions, studyTime, restTime, finalRest, description, totalTime);
+
+            updateStartButtonState();
         }
     }
 }

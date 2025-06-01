@@ -15,7 +15,6 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.focusmate.CountdownTimerActivity;
 import com.example.focusmate.R;
 import com.example.focusmate.Session.Session;
 import com.example.focusmate.Session.SessionManager;
@@ -103,14 +102,8 @@ public class SessionsFragment extends Fragment implements SessionManager.Session
             progressBar.setVisibility(View.GONE);
             if (sessions != null && !sessions.isEmpty()) {
                 sessionsAdapter.setSessions(sessions);
-                Toast.makeText(getContext(),
-                        "Cargadas " + sessions.size() + " sesiones",
-                        Toast.LENGTH_SHORT).show();
             } else {
                 sessionsAdapter.setSessions(sessions != null ? sessions : new java.util.ArrayList<>());
-                Toast.makeText(getContext(),
-                        "No tienes sesiones registradas aún",
-                        Toast.LENGTH_SHORT).show();
             }
         });
     }
