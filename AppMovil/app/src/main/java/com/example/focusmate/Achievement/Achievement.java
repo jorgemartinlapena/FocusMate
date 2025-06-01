@@ -1,14 +1,26 @@
 package com.example.focusmate.Achievement;
 
-public class Achivement {
+import com.google.gson.annotations.SerializedName;
+
+public class Achievement {
     private int id;
+
+    @SerializedName("nombre")
     private String name;
+
+    @SerializedName("descripcion")
     private String description;
+
     private int days;
+
+    @SerializedName("minutos")
     private int minutes;
+
+    @SerializedName("tipo")
     private String type;
 
-    public Achivement(int id, String name, int days, String description, int minutes, String type) {
+
+    public Achievement(int id, String name, int days, String description, int minutes, String type) {
         this.id = id;
         this.name = name;
         this.days = days;

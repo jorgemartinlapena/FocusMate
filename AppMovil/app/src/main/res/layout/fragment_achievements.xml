@@ -1,12 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Logros y Objetivos"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp"
+        android:gravity="center"
+        android:textColor="@android:color/black" />
+
+    <TextView
+        android:id="@+id/tv_achievement_stats"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Progreso: 0/10 logros (0%)"
+        android:textSize="16sp"
+        android:gravity="center"
+        android:layout_marginBottom="12dp"
+        android:textColor="@android:color/holo_blue_dark"
+        android:background="#f0f8ff"
+        android:padding="8dp" />
+
+    <Button
+        android:id="@+id/btn_refresh_achievements"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Actualizar Logros"
+        android:layout_marginBottom="16dp"
+        android:backgroundTint="@android:color/holo_blue_dark" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerAchievements"
+        android:id="@+id/rv_achievements"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <ProgressBar
+        android:id="@+id/progress_bar_achievements"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone" />
 
 </LinearLayout>

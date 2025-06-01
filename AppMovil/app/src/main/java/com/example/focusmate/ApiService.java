@@ -1,5 +1,6 @@
 package com.example.focusmate;
 
+import com.example.focusmate.Achievement.Achievement;
 import com.example.focusmate.Session.Session;
 import com.example.focusmate.StudyMethods.StudyMethodResponse;
 
@@ -21,4 +22,12 @@ public interface ApiService {
 
     @GET("metodos")
     Observable<StudyMethodResponse> getStudyMethods();
+
+    @GET("logros")
+    Observable<List<Achievement>> getAllAchievements();
+
+    @GET("comprobar_logros")
+    Observable<List<Achievement>> getUserAchievements(@Query("user_id") int user_id);
+
+
 }
