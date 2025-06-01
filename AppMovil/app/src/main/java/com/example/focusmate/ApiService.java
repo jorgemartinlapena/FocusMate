@@ -31,7 +31,7 @@ public interface ApiService {
     @GET("logros")
     Observable<List<Achievement>> getAllAchievements();
 
-    @GET("comprobar_logros")
+    @GET("usuario/logros")
     Observable<List<Achievement>> getUserAchievements(@Query("user_id") int user_id);
 
 

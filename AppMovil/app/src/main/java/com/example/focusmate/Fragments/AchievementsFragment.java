@@ -86,16 +86,35 @@ public class AchievementsFragment extends Fragment implements AchievementManager
     @Override
     public void onAchievementsLoaded(List<Achievement> achievements) {
         allAchievements = achievements;
-        // Ahora cargar logros del usuario (sin pasar userId)
-        achievementManager.getUserAchievements(); // Sin parámetros
+        
+        // Pasar los logros al adapter INMEDIATAMENTE
+        if (achievementsAdapter != null) {
+            achievementsAdapter.setAllAchievements(achievements);
+        }
+        
+        // Ahora cargar logros del usuario
+        achievementManager.getUserAchievements();
     }
 
     @Override
     public void onUserAchievementsLoaded(List<Achievement> achievements) {
         mainHandler.post(() -> {
-            progressBar.setVisibility(View.GONE);
+            if (progressBar != null) {
+                progressBar.setVisibility(View.GONE);
+            }
+            
             this.userAchievements = achievements;
-            achievementsAdapter.setUserAchievements(achievements);
+            
+            // Asegurarse de que el adapter tiene ambas listas
+            if (achievementsAdapter != null) {
+                // Volver a establecer allAchievements por si acaso
+                if (allAchievements != null) {
+                    achievementsAdapter.setAllAchievements(allAchievements);
+                }
+                // Establecer logros del usuario
+                achievementsAdapter.setUserAchievements(achievements);
+            }
+            
             updateStatsText();
         });
     }
